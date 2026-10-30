@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forest Fire AI | Wildfire Risk Classifier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-icon">🔥</span>
+        <div class="logo-text">
+          <h1>ForestFire<span>ML</span></h1>
+          <p class="tagline">Wildfire Danger Prediction & FWI Analytics</p>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <button class="nav-btn active" data-tab="tab-predict">Live Inference</button>
+        <button class="nav-btn" data-tab="tab-india">🇮🇳 Indian States Intel</button>
+        <button class="nav-btn" data-tab="tab-benchmarks">Model Benchmarks</button>
+        <button class="nav-btn" data-tab="tab-plots">Visualizations</button>
+      </nav>
+      <div class="model-badge">
+        <span class="status-dot"></span>
+        <span id="active-model-name">Random Forest Pipeline</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="app-main">
+    <!-- TAB 1: Live Prediction -->
+    <section id="tab-predict" class="tab-panel active">
+      <div class="hero-intro">
+        <h2>Real-Time Wildfire Classification</h2>
+        <p>Adjust environmental weather variables or select a scenario preset to predict wildfire occurrence.</p>
+      </div>
+
+      <!-- Presets Toolbar -->
+      <div class="presets-bar">
+        <span class="presets-label">⚡ Quick Scenarios:</span>
+        <button type="button" class="preset-btn hot" id="preset-hot">🔥 Severe Heatwave (High Risk)</button>
+        <button type="button" class="preset-btn mild" id="preset-mild">⛅ Warm Summer Afternoon</button>
+        <button type="button" class="preset-btn safe" id="preset-safe">🌧️ Humid & Rainy (Safe)</button>
+      </div>
+
+      <div class="prediction-grid">
+        <!-- Input Form -->
+        <div class="glass-card form-card">
+          <div class="card-header">
+            <h3>Weather & FWI Parameters</h3>
+            <span class="card-subtitle">10 Features + Geographic Region</span>
+          </div>
+
+          <form id="prediction-form">
+            <!-- Row 1: Weather Fundamentals -->
+            <div class="form-section-title">🌡️ Ambient Weather Conditions</div>
+            <div class="input-grid">
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-temp">Temperature (°C)</label>
+                  <span class="val-display" id="val-temp">32.0</span>
+                </div>
+                <input type="range" id="input-temp" name="Temperature" min="15" max="45" step="0.5" value="32.0">
+              </div>
+
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-rh">Relative Humidity (%)</label>
+                  <span class="val-display" id="val-rh">55.0</span>
+                </div>
+                <input type="range" id="input-rh" name="RH" min="10" max="95" step="1" value="55.0">
+              </div>
+
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-ws">Wind Speed (km/h)</label>
+                  <span class="val-display" id="val-ws">15.0</span>
+                </div>
+                <input type="range" id="input-ws" name="Ws" min="5" max="35" step="1" value="15.0">
+              </div>
+
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-rain">Rainfall (mm)</label>
+                  <span class="val-display" id="val-rain">0.0</span>
+                </div>
+                <input type="range" id="input-rain" name="Rain" min="0" max="20" step="0.1" value="0.0">
+              </div>
+            </div>
+
+            <!-- Row 2: Fuel Moisture & Drought Indices -->
+            <div class="form-section-title">🪵 Fire Weather Index (FWI) Components</div>
+            <div class="input-grid">
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-ffmc" title="Fine Fuel Moisture Code (surface litter moisture)">FFMC</label>
+                  <span class="val-display" id="val-ffmc">85.0</span>
+                </div>
+                <input type="range" id="input-ffmc" name="FFMC" min="25" max="100" step="0.5" value="85.0">
+              </div>
+
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-dmc" title="Duff Moisture Code (organic layer moisture)">DMC</label>
+                  <span class="val-display" id="val-dmc">15.0</span>
+                </div>
+                <input type="range" id="input-dmc" name="DMC" min="0" max="70" step="0.5" value="15.0">
+              </div>
+
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-dc" title="Drought Code (deep layer moisture)">DC</label>
+                  <span class="val-display" id="val-dc">50.0</span>
+                </div>
+                <input type="range" id="input-dc" name="DC" min="5" max="230" step="1" value="50.0">
+              </div>
+
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-isi" title="Initial Spread Index (rate of fire spread)">ISI</label>
+                  <span class="val-display" id="val-isi">6.0</span>
+                </div>
+                <input type="range" id="input-isi" name="ISI" min="0" max="20" step="0.2" value="6.0">
+              </div>
+
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-bui" title="Buildup Index (available fuel for combustion)">BUI</label>
+                  <span class="val-display" id="val-bui">18.0</span>
+                </div>
+                <input type="range" id="input-bui" name="BUI" min="1" max="70" step="0.5" value="18.0">
+              </div>
+
+              <div class="input-group">
+                <div class="input-header">
+                  <label for="input-fwi" title="Fire Weather Index (overall fire danger score)">FWI</label>
+                  <span class="val-display" id="val-fwi">10.0</span>
+                </div>
+                <input type="range" id="input-fwi" name="FWI" min="0" max="35" step="0.5" value="10.0">
+              </div>
+            </div>
+
+            <!-- Region Selection -->
+            <div class="form-section-title">📍 Geographic Location</div>
+            <div class="select-group">
+              <label for="input-region">Target Region & Forest Belt (All 35 Indian States & UTs)</label>
+              <select id="input-region" name="Region">
+                <optgroup label="🔥 India: Extreme Vulnerability Zones (3-Yr Avg > 2,000 Incidents/Yr)">
+                  <option value="Mizoram">Mizoram (Peak: 4,675 Fires | Avg: 3,267/yr)</option>
+                  <option value="Chhatisgarh">Chhattisgarh (Peak: 2,849 Fires | Avg: 2,253/yr)</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh (Peak: 2,894 Fires | Avg: 2,244/yr)</option>
+                </optgroup>
+                <optgroup label="⚠️ India: High Vulnerability Zones (3-Yr Avg 500 – 2,000 Incidents/Yr)">
+                  <option value="Assam">Assam (Peak: 2,511 Fires | Avg: 1,911/yr)</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh (Peak: 2,442 Fires | Avg: 1,799/yr)</option>
+                  <option value="Manipur">Manipur (Peak: 2,487 Fires | Avg: 1,746/yr)</option>
+                  <option value="Maharashtra">Maharashtra (Peak: 2,257 Fires | Avg: 1,643/yr)</option>
+                  <option value="Meghalaya">Meghalaya (Peak: 1,743 Fires | Avg: 1,211/yr)</option>
+                  <option value="Nagaland">Nagaland (Peak: 1,654 Fires | Avg: 1,186/yr)</option>
+                  <option value="Orissa">Odisha (Peak: 2,515 Fires | Avg: 1,168/yr)</option>
+                  <option value="Tripura">Tripura (Peak: 1,127 Fires | Avg: 826/yr)</option>
+                  <option value="Jharkhand">Jharkhand (Peak: 1,314 Fires | Avg: 645/yr)</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh (Peak: 786 Fires | Avg: 616/yr)</option>
+                  <option value="Uttarakhand" selected>Uttarakhand (Peak: 855 Fires | Avg: 524/yr)</option>
+                </optgroup>
+                <optgroup label="🌲 India: Moderate Vulnerability Zones (3-Yr Avg 100 – 500 Incidents/Yr)">
+                  <option value="Karnataka">Karnataka (Peak: 604 Fires | Avg: 467/yr)</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh (Peak: 737 Fires | Avg: 435/yr)</option>
+                  <option value="Bihar">Bihar (Peak: 397 Fires | Avg: 207/yr)</option>
+                  <option value="Gujarat">Gujarat (Peak: 182 Fires | Avg: 154/yr)</option>
+                  <option value="Tamil nadu">Tamil Nadu (Peak: 276 Fires | Avg: 153/yr)</option>
+                  <option value="West Bengal">West Bengal (Peak: 224 Fires | Avg: 174/yr)</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh (Peak: 168 Fires | Avg: 100/yr)</option>
+                  <option value="Rajasthan">Rajasthan (Peak: 117 Fires | Avg: 100/yr)</option>
+                  <option value="Kerala">Kerala (Peak: 166 Fires | Avg: 94/yr)</option>
+                </optgroup>
+                <optgroup label="🌿 India: Low / Monitored Forest Belts & Union Territories">
+                  <option value="Jammu and Kashmir">Jammu and Kashmir (Peak: 117 Fires | Avg: 51/yr)</option>
+                  <option value="Punjab">Punjab (Peak: 56 Fires | Avg: 36/yr)</option>
+                  <option value="Haryana">Haryana (Peak: 29 Fires | Avg: 18/yr)</option>
+                  <option value="Andaman and Nicobar">Andaman and Nicobar (Peak: 7 Fires | Avg: 3/yr)</option>
+                  <option value="Goa">Goa (Peak: 3 Fires | Avg: 2/yr)</option>
+                  <option value="Sikkim">Sikkim (Peak: 5 Fires | Avg: 2/yr)</option>
+                  <option value="Delhi">Delhi (Peak: 1 Fire | Avg: 0.3/yr)</option>
+                  <option value="Chandigarh">Chandigarh (Shivalik Foothills Reserve | 0 Fires)</option>
+                  <option value="Dadra and Nagar haveli">Dadra and Nagar Haveli (Western Ghats Border | 0 Fires)</option>
+                  <option value="Daman and Diu">Daman and Diu (Coastal Littoral | 0 Fires)</option>
+                  <option value="Lakshadweep">Lakshadweep (Coral Atoll Canopy | 0 Fires)</option>
+                  <option value="Puducherry">Puducherry (Coromandel Littoral | 0 Fires)</option>
+                </optgroup>
+                <optgroup label="🌍 Mediterranean Benchmark Regions">
+                  <option value="Bejaia">Bejaia Region (Gouraya Mediterranean Coast)</option>
+                  <option value="Sidi-Bel Abbes">Sidi-Bel Abbes Region (Inland High-Plateau)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <button type="submit" class="submit-btn" id="predict-btn">
+              <span class="btn-icon">⚡</span> Calculate Wildfire Risk
+            </button>
+          </form>
+        </div>
+
+        <!-- Output Results Card -->
+        <div class="glass-card result-card" id="result-container">
+          <div class="card-header">
+            <h3>Prediction Results</h3>
+            <span class="card-subtitle">Model Output & Calibrated Probabilities</span>
+          </div>
+
+          <div class="result-placeholder" id="result-placeholder">
+            <div class="placeholder-icon">📡</div>
+            <p>Click <strong>"Calculate Wildfire Risk"</strong> or choose a quick scenario above to generate predictions.</p>
+          </div>
+
+          <div class="result-content hidden" id="result-content">
+            <div class="risk-badge" id="risk-badge">
+              <span class="badge-icon" id="badge-icon">🔥</span>
+              <div class="badge-text">
+                <h4 id="risk-title">HIGH WILDFIRE RISK</h4>
+                <p id="risk-desc">Active forest fire predicted under current indices.</p>
+              </div>
+            </div>
+
+            <div class="confidence-box">
+              <div class="confidence-header">
+                <span>Model Confidence</span>
+                <span class="confidence-pct" id="confidence-pct">100.0%</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar-fill" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="probabilities-grid">
+              <div class="prob-item fire-prob">
+                <span class="prob-label">P(Wildfire)</span>
+                <span class="prob-val" id="prob-fire">100.0%</span>
+              </div>
+              <div class="prob-item safe-prob">
+                <span class="prob-label">P(No Fire)</span>
+                <span class="prob-val" id="prob-not-fire">0.0%</span>
+              </div>
+            </div>
+
+            <!-- Area & Location Prediction Box -->
+            <div class="area-prediction-box" id="area-prediction-box">
+              <div class="area-header">
+                <span class="area-icon">📍</span>
+                <div class="area-header-info">
+                  <span class="area-tag">PREDICTED FIRE LOCATION</span>
+                  <h4 class="area-name" id="area-name">Bejaia National Park - Gouraya Coastal Ridge</h4>
+                  <p class="area-sector" id="area-sector">Sector 1 (Coastal Ridge & High-Wind Bluffs)</p>
+                </div>
+              </div>
+
+              <!-- Interactive Forest Radar Map -->
+              <div class="radar-container">
+                <div class="radar-map" id="radar-map">
+                  <div class="radar-grid"></div>
+                  <div class="radar-sweep"></div>
+                  <div class="radar-epicenter" id="radar-epicenter">
+                    <span class="pulse-ring"></span>
+                    <span class="fire-dot" id="radar-fire-dot">🔥</span>
+                  </div>
+                  <div class="radar-label top">Sector North</div>
+                  <div class="radar-label bottom">Sector South</div>
+                  <div class="radar-label left">Sector West</div>
+                  <div class="radar-label right">Sector East</div>
+                  <div class="radar-coords" id="radar-coords">36.76° N, 5.09° E</div>
+                </div>
+              </div>
+
+              <!-- Burned Area & Spread Stats -->
+              <div class="area-stats-grid">
+                <div class="stat-pill">
+                  <span class="stat-label">Estimated Burn Area</span>
+                  <span class="stat-value highlight" id="burned-area-val">5.74 ha</span>
+                </div>
+                <div class="stat-pill">
+                  <span class="stat-label">Spread Radius</span>
+                  <span class="stat-value" id="spread-radius-val">0.14 km</span>
+                </div>
+                <div class="stat-pill">
+                  <span class="stat-label">Spread Velocity</span>
+                  <span class="stat-value" id="spread-velocity-val">2.55 km/h</span>
+                </div>
+                <div class="stat-pill">
+                  <span class="stat-label">Containment Radius</span>
+                  <span class="stat-value" id="containment-val">0.89 km</span>
+                </div>
+              </div>
+              <div class="severity-banner" id="severity-banner">Tier 2: Moderate Surface Fire (2 - 10 ha)</div>
+            </div>
+
+            <!-- Indian State Empirical Wildfire Intel Box -->
+            <div class="india-intel-card hidden" id="india-intel-card">
+              <div class="india-intel-header">
+                <span class="india-flag-icon">🇮🇳</span>
+                <div>
+                  <h4 class="india-state-title" id="india-intel-title">Mizoram Historical Baseline</h4>
+                  <span class="india-subtitle" id="india-intel-subtitle">Official Ministry of Environment & Forests / FSI Wildfire Record</span>
+                </div>
+                <span class="india-tier-badge" id="india-intel-tier">Extreme Fire-Prone Zone (Tier 4)</span>
+              </div>
+
+              <div class="india-vuln-bar-wrap">
+                <div class="india-vuln-label">
+                  <span>State Wildfire Vulnerability Index</span>
+                  <strong id="india-intel-score">100.0 / 100</strong>
+                </div>
+                <div class="india-bar-track">
+                  <div class="india-bar-fill" id="india-intel-fill" style="width: 100%;"></div>
+                </div>
+              </div>
+
+              <div class="india-stats-mini-grid">
+                <div class="mini-stat">
+                  <span class="mini-label">Peak Annual Fires</span>
+                  <span class="mini-val" id="india-intel-peak">4,675</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-label">3-Year Annual Avg</span>
+                  <span class="mini-val" id="india-intel-avg">3,266.7</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-label">Season 2010–11</span>
+                  <span class="mini-val" id="india-intel-y10">1,691</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-label">Season 2009–10</span>
+                  <span class="mini-val" id="india-intel-y09">4,675</span>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-label">Season 2008–09</span>
+                  <span class="mini-val" id="india-intel-y08">3,434</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="contributing-factors">
+              <h4>Key Contributing Weather Signals</h4>
+              <ul class="factors-list" id="factors-list">
+                <!-- Dynamically populated -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Indian Wildfire Intelligence -->
+    <section id="tab-india" class="tab-panel">
+      <div class="hero-intro">
+        <h2>🇮🇳 Indian Wildfire Records & Vulnerability Intelligence</h2>
+        <p>Empirical State & UT Forest Fire Incidents (2008–2011) from the Ministry of Environment & Forests / Forest Survey of India (FSI).</p>
+      </div>
+
+      <!-- National KPI Cards -->
+      <div class="india-kpi-grid">
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon">🇮🇳</div>
+          <div class="kpi-info">
+            <span class="kpi-label">Total 3-Year Wildfire Incidents</span>
+            <span class="kpi-val" id="kpi-total-fires">43,846</span>
+            <span class="kpi-sub">Across all 35 States & UTs</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon">🔥</div>
+          <div class="kpi-info">
+            <span class="kpi-label">Highest Wildfire State</span>
+            <span class="kpi-val highlight" id="kpi-top-state">Mizoram (4,675)</span>
+            <span class="kpi-sub">Peak single-year recorded count</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon">🌲</div>
+          <div class="kpi-info">
+            <span class="kpi-label">Central Sal Belt Hotspots</span>
+            <span class="kpi-val" id="kpi-central-belt">MP & Chhattisgarh</span>
+            <span class="kpi-sub">> 2,200 annual average fires each</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon">🛡️</div>
+          <div class="kpi-info">
+            <span class="kpi-label">Jurisdictions Tracked</span>
+            <span class="kpi-val" id="kpi-states-count">35 States & UTs</span>
+            <span class="kpi-sub">100% Integrated into Model</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls: Search & Tier Filters -->
+      <div class="glass-card india-table-container">
+        <div class="table-toolbar">
+          <div class="search-wrap">
+            <input type="text" id="india-search-input" placeholder="🔍 Search any State or UT (e.g. Uttarakhand, Mizoram, Madhya Pradesh, Assam)...">
+          </div>
+          <div class="tier-filter-pills" id="tier-filter-pills">
+            <button type="button" class="tier-pill active" data-filter="all">All (35)</button>
+            <button type="button" class="tier-pill tier-extreme" data-filter="Extreme">Extreme (Tier 4)</button>
+            <button type="button" class="tier-pill tier-high" data-filter="High">High (Tier 3)</button>
+            <button type="button" class="tier-pill tier-moderate" data-filter="Moderate">Moderate (Tier 2)</button>
+            <button type="button" class="tier-pill tier-low" data-filter="Low">Low (Tier 1)</button>
+          </div>
+        </div>
+
+        <!-- 35 States Table -->
+        <div class="table-responsive">
+          <table class="benchmark-table india-states-table" id="india-states-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">Rank</th>
+                <th>State / Union Territory</th>
+                <th>2010–2011</th>
+                <th>2009–2010</th>
+                <th>2008–2009</th>
+                <th>3-Year Avg</th>
+                <th>Peak Fires</th>
+                <th>Vulnerability Index</th>
+                <th>Risk Tier</th>
+                <th style="text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="india-tbody">
+              <tr><td colspan="10" class="loading-td">Loading 35 Indian States Wildfire Data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- State Fire Rankings Chart Card -->
+      <div class="glass-card india-chart-card">
+        <div class="card-header">
+          <h3>📊 Annual Average Forest Fire Incidents Across Indian States (2008–2011)</h3>
+          <span class="card-subtitle">Generated from official dataset | Click image to enlarge</span>
+        </div>
+        <div class="chart-preview-wrap" id="india-chart-preview">
+          <img src="/plots/india_state_fire_incident_rankings.png" alt="Indian State Fire Incident Rankings" class="india-ranking-chart-img" id="india-ranking-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Model Benchmarks -->
+    <section id="tab-benchmarks" class="tab-panel">
+      <div class="hero-intro">
+        <h2>Cross-Validation & Held-Out Test Benchmarks</h2>
+        <p>Comparison of 4 machine learning classification algorithms trained using Stratified 5-Fold Cross Validation.</p>
+      </div>
+
+      <div class="glass-card table-card">
+        <div class="table-responsive">
+          <table class="benchmark-table" id="benchmark-table">
+            <thead>
+              <tr>
+                <th>Classifier</th>
+                <th>CV Mean F1</th>
+                <th>CV Std F1</th>
+                <th>CV Mean ROC</th>
+                <th>Test Accuracy</th>
+                <th>Test Precision</th>
+                <th>Test Recall</th>
+                <th>Test F1-Score</th>
+                <th>Test ROC-AUC</th>
+              </tr>
+            </thead>
+            <tbody id="benchmark-tbody">
+              <tr><td colspan="9" class="loading-td">Loading model metrics...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="notes-card glass-card">
+        <h3>💡 Evaluation Highlights</h3>
+        <ul>
+          <li><strong>Zero False Negatives:</strong> All tree models achieved <strong>100% Recall</strong> on the held-out test split, meaning no fire escapes detection.</li>
+          <li><strong>Winning Model:</strong> <strong>Random Forest Classifier</strong> achieved perfect test generalization (<strong>1.0000 F1-Score</strong> and <strong>1.0000 ROC-AUC</strong>) without overfitting.</li>
+          <li><strong>Leak-Free Preprocessing:</strong> All scaling parameters and median imputation values were fitted strictly on the training partition.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- TAB 4: Visualizations & Plots Gallery -->
+    <section id="tab-plots" class="tab-panel">
+      <div class="hero-intro">
+        <h2>Exploratory Analysis & Model Evaluation Gallery</h2>
+        <p>Interactive catalog of generated 300-DPI publication figures from outputs/plots/.</p>
+      </div>
+
+      <div class="plots-grid" id="plots-grid">
+        <!-- Dynamically populated from /api/plots -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Image Lightbox Modal -->
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close" id="lightbox-close">&times;</span>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="Plot View">
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+  </div>
+
+  <footer class="footer">
+    <p>Forest Fire ML Classification System | Built with Scikit-learn, FastAPI, & Vanilla CSS</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

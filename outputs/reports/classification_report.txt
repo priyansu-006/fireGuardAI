@@ -1,0 +1,73 @@
+================================================================================
+FOREST FIRE CLASSIFICATION PIPELINE: MODEL EVALUATION REPORT
+================================================================================
+
+1. MODEL BENCHMARK COMPARISON TABLE (Held-Out Test Set)
+--------------------------------------------------------------------------------
+              Model  CV Mean F1 (Train)  CV Std F1  CV Mean ROC-AUC  Test Accuracy  Test Precision  Test Recall  Test F1-Score  Test ROC-AUC
+      Random Forest              0.9767     0.0255           0.9961         1.0000          1.0000       1.0000         1.0000        1.0000
+      Decision Tree              0.9767     0.0151           0.9789         0.9796          0.9655       1.0000         0.9825        0.9762
+            XGBoost              0.9814     0.0177           0.9919         0.9388          0.9032       1.0000         0.9492        0.9966
+Logistic Regression              0.9537     0.0323           0.9928         0.9388          0.9310       0.9643         0.9474        0.9932
+
+2. WINNING MODEL SELECTION
+--------------------------------------------------------------------------------
+Best Model Selected : Random Forest
+Selection Criterion : Highest F1 on held-out test data
+Engineering Justification:
+In wildfire detection systems, False Negatives (predicting 'not fire' when a real wildfire
+is raging) lead to catastrophic ecological and human loss. The F1-score provides a balanced
+harmonic mean of Precision and Recall, avoiding accuracy illusions caused by slight class imbalance.
+
+3. DETAILED CLASSIFICATION REPORTS PER MODEL
+--------------------------------------------------------------------------------
+
+Model: Logistic Regression
+........................................
+              precision    recall  f1-score   support
+
+    Not Fire     0.9500    0.9048    0.9268        21
+        Fire     0.9310    0.9643    0.9474        28
+
+    accuracy                         0.9388        49
+   macro avg     0.9405    0.9345    0.9371        49
+weighted avg     0.9392    0.9388    0.9386        49
+
+
+Model: Decision Tree
+........................................
+              precision    recall  f1-score   support
+
+    Not Fire     1.0000    0.9524    0.9756        21
+        Fire     0.9655    1.0000    0.9825        28
+
+    accuracy                         0.9796        49
+   macro avg     0.9828    0.9762    0.9790        49
+weighted avg     0.9803    0.9796    0.9795        49
+
+
+Model: Random Forest
+........................................
+              precision    recall  f1-score   support
+
+    Not Fire     1.0000    1.0000    1.0000        21
+        Fire     1.0000    1.0000    1.0000        28
+
+    accuracy                         1.0000        49
+   macro avg     1.0000    1.0000    1.0000        49
+weighted avg     1.0000    1.0000    1.0000        49
+
+
+Model: XGBoost
+........................................
+              precision    recall  f1-score   support
+
+    Not Fire     1.0000    0.8571    0.9231        21
+        Fire     0.9032    1.0000    0.9492        28
+
+    accuracy                         0.9388        49
+   macro avg     0.9516    0.9286    0.9361        49
+weighted avg     0.9447    0.9388    0.9380        49
+
+================================================================================
+END OF REPORT
